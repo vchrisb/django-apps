@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}Yksi{% endblock %}
+
+{% block jumbo %}
+<!-- Main component for a primary marketing message or call to action -->
+<div class="jumbotron">
+  <h1>Hello {{ user.get_full_name|default:user.username }}!</h1>
+  <p>This example is a quick exercise to illustrate how you could work with Pivotal Cloud Foundry, a PaaS. It includes the responsive CSS and HTML, so it also adapts to your viewport and device.</p>
+  <p>
+    <a class="btn btn-lg btn-primary" href="http://getbootstrap.com/" role="button" target="_blank">View Bootstrap Website &raquo;</a>
+  </p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-3 col-md-3">
+    <h1>{{ title }}</h1>
+  </div>
+  <div class="col-sm-3 col-md-3">
+    Signup for Newsletter:
+    {% if form %}
+      <form class='' action='' method='POST'> {% csrf_token %}
+      {{ form|crispy }}
+      <input class='btn btn-primary' type='submit' value='Sign Up' />
+      </form>
+    {% else %}
+      {{ message }}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

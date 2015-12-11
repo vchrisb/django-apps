@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}Login{% endblock %}
+
+{% block head_css %}
+<link href="{% static 'css/bootstrap-social.css' %}" rel="stylesheet">
+<link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-3 col-md-3">
+    <a class="btn btn-block btn-social btn-twitter" href="{% url 'social:begin' 'twitter' %}?next={% url 'home' %}">
+      <span class="fa fa-twitter"></span> Sign in with Twitter
+    </a>
+    <a class="btn btn-block btn-social btn-google" href="{% url 'social:begin' 'google-oauth2' %}?next={% url 'home' %}">
+      <span class="fa fa-google"></span> Sign in with Google
+    </a>
+  </div>
+</div>
+{% endblock %}

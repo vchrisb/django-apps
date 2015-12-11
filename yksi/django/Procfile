@@ -1,0 +1,1 @@
+web: gunicorn yksi.wsgi --workers 2

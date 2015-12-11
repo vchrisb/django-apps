@@ -1,0 +1,16 @@
+boto
+celery
+django
+django-cleanup
+django-crispy-forms
+django-environ
+django-filter
+django-simple-captcha
+djangorestframework
+django-storages-redux
+dj-database-url
+gunicorn
+markdown
+mysqlclient
+psycopg2
+python-social-auth

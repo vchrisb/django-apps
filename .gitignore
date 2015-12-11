@@ -55,3 +55,12 @@ docs/_build/
 
 # PyBuilder
 target/
+
+#DB sqlite
+db.sqlite.db
+
+#Vagrant
+.vagrant
+
+#environment files
+envionments.sh
