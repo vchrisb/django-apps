@@ -12,6 +12,9 @@
 {% block content %}
 <div class="row">
   <div class="col-sm-3 col-md-3">
+  </div>
+  <div class="col-sm-3 col-md-3">
+    <h1>Login using social accounts:</h1>
     <a class="btn btn-block btn-social btn-twitter" href="{% url 'social:begin' 'twitter' %}?next={% url 'home' %}">
       <span class="fa fa-twitter"></span> Sign in with Twitter
     </a>
