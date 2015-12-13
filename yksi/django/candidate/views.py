@@ -2,6 +2,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 #from django.shortcuts import render_to_response
 
 #from django.views.generic.edit import DeleteView
@@ -13,12 +14,13 @@ from candidate.forms import CandidateFormSetHelper
 from candidate.models import Candidate
 from crispy_forms.layout import Submit
 
+@login_required
 def create(request):
 
     # validate user is authenticated
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('login'))
-    
+    #if not request.user.is_authenticated():
+    #    return HttpResponseRedirect(reverse('login'))
+
     CandidateFormSet = modelformset_factory(Candidate, can_delete=True, fields=('first_name','last_name','photo','secure_photo'))
     helper = CandidateFormSetHelper()
     #helper.add_input(Submit("submit", "Save"))

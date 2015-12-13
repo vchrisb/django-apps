@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # third pary apps
@@ -43,12 +44,20 @@ INSTALLED_APPS = (
     'storages',
     'django_cleanup',
     'rest_framework',
-    'social.apps.django_app.default',
     'captcha',
+    # allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.twitter',
+    'allauth.socialaccount.providers.github',
     # my apps
     'newsletter',
     'candidate',
 )
+
+SITE_ID = 1
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,19 +72,11 @@ MIDDLEWARE_CLASSES = (
 
 # Authentication backends Setting
 AUTHENTICATION_BACKENDS = (
-    # For Facebook Authentication
-    #'social.backends.facebook.FacebookOAuth2',
-
-    # For Twitter Authentication
-    'social.backends.twitter.TwitterOAuth',
-
-    # For Google Authentication
-    #'social.backends.google.GoogleOpenId',
-    'social.backends.google.GoogleOAuth2',
-    #'social.backends.google.GoogleOAuth',
-
-    # Default Django Auth Backends
+    # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 ROOT_URLCONF = 'yksi.urls'
@@ -92,9 +93,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 
-                # Setting of Template Context Processors for Social Auth
-                'social.apps.django_app.context_processors.backends',
-                'social.apps.django_app.context_processors.login_redirect',
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -168,11 +168,6 @@ for configs in userservices:
             EMAIL_USE_TLS = True
         else:
             EMAIL_USE_TLS = False
-    elif "socialauth" in configs['name']:
-        SOCIAL_AUTH_TWITTER_KEY = configs['credentials']['TWITTER_KEY']
-        SOCIAL_AUTH_TWITTER_SECRET = configs['credentials']['TWITTER_SECRET']
-        SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = configs['credentials']['GOOGLE_KEY']
-        SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = configs['credentials']['GOOGLE_SECRET']
 
 AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_SECURE_URLS = False
@@ -193,12 +188,28 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static_custom'),
 )
 
+# crispy
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = not DEBUG
 
+# REST
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'PAGE_SIZE': 10
 }
 
+#captcha
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+
+# allauth
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+SOCIALACCOUNT_PROVIDERS = \
+    { 'github':
+        {   'SCOPE': ['user:email'],
+            'VERIFIED_EMAIL': True,
+        }
+    }
+LOGIN_REDIRECT_URL = '/'

@@ -84,12 +84,12 @@ def contact(request):
 
     return render(request, "contact.html", context)
 
-def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse('home'))
-
-def login_view(request):
-    context = {
-        "title": "Login Page",
-    }
-    return render(request, "login.html", context)
+# def logout_view(request):
+#     logout(request)
+#     return HttpResponseRedirect(reverse('home'))
+#
+# def login_view(request):
+#     context = {
+#         "title": "Login Page",
+#     }
+#     return render(request, "login.html", context)

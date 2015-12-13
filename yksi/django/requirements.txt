@@ -1,6 +1,7 @@
 boto
 celery
 django
+django-allauth
 django-cleanup
 django-crispy-forms
 django-environ
@@ -13,4 +14,3 @@ gunicorn
 markdown
 mysqlclient
 psycopg2
-python-social-auth

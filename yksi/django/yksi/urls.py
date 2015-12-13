@@ -43,16 +43,17 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     url(r'^$', newsletter.views.home, name='home'),
     url(r'^contact/$', newsletter.views.contact, name='contact'),
-    url(r'^logout/$', newsletter.views.logout_view, name='logout'),
-    url(r'^login/$', newsletter.views.login_view, name='login'),
+    #url(r'^logout/$', newsletter.views.logout_view, name='logout'),
+    #url(r'^login/$', newsletter.views.login_view, name='login'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^candidate/$', candidate.views.create, name='candidate-create'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
+    # Url Entries for allauth
+    url(r'^accounts/', include('allauth.urls')),
     # Url Entries for social auth
-    url('', include('social.apps.django_app.urls', namespace='social')),
+    #url('', include('social.apps.django_app.urls', namespace='social')),
     # Url Entries for django administration
-    url('', include('django.contrib.auth.urls', namespace='auth')),
+    #url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^captcha/', include('captcha.urls')),
 ]
 
