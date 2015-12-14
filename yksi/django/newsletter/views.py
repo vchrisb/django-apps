@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import logout
 import os
 
-from .tasks import send_email
+#from .tasks import send_email
 
 # import forms
 from .forms import ContactForm, SignUpForm
@@ -76,20 +76,15 @@ def contact(request):
         %s
         """ %(form_full_name, form_message)
         # send asynchronous
-        send_email.delay(subject, contact_message, from_email, to_email, some_html_message)
-
+        #send_email.delay(subject, contact_message, from_email, to_email, some_html_message)
+        send_mail(subject,
+                    contact_message,
+                    from_email,
+                    to_email,
+                    html_message = some_html_message,
+                    fail_silently = False)
         context = {
             "title": "Thank You!",
         }
 
     return render(request, "contact.html", context)
-
-# def logout_view(request):
-#     logout(request)
-#     return HttpResponseRedirect(reverse('home'))
-#
-# def login_view(request):
-#     context = {
-#         "title": "Login Page",
-#     }
-#     return render(request, "login.html", context)

@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # Url Entries for allauth
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^rest-auth/', include('rest_auth.urls')),
     # Url Entries for social auth
     #url('', include('social.apps.django_app.urls', namespace='social')),
     # Url Entries for django administration

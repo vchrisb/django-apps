@@ -2,10 +2,12 @@ boto
 celery
 django
 django-allauth
+django-celery-email
 django-cleanup
 django-crispy-forms
 django-environ
 django-filter
+django-rest-auth
 django-simple-captcha
 djangorestframework
 django-storages-redux

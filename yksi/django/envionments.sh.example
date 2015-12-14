@@ -27,18 +27,6 @@ export VCAP_SERVICES='{
           },
           "syslog_drain_url": ""
         },
-        {
-          "name": "socialauth",
-          "label": "user-provided",
-          "tags": [],
-          "credentials": {
-            "GOOGLE_KEY": "1234567890.apps.googleusercontent.com",
-            "GOOGLE_SECRET": "1234567890-Wz",
-            "TWITTER_KEY": "1234567890",
-            "TWITTER_SECRET": "1234567890"
-          },
-          "syslog_drain_url": ""
-        }
       ],
       "cloudamqp": [
         {

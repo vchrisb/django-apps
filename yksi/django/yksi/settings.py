@@ -43,7 +43,10 @@ INSTALLED_APPS = (
     'crispy_forms',
     'storages',
     'django_cleanup',
+    'djcelery_email',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_auth',
     'captcha',
     # allauth
     'allauth',
@@ -74,7 +77,6 @@ MIDDLEWARE_CLASSES = (
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
-
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
 )
@@ -101,8 +103,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'yksi.wsgi.application'
-
-
 
 # django-environ does not work with Pivotal Web Services and MySQL
 # DATABASES = {
@@ -213,3 +213,5 @@ SOCIALACCOUNT_PROVIDERS = \
         }
     }
 LOGIN_REDIRECT_URL = '/'
+# djcelery_email
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
