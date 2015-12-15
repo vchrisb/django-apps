@@ -13,9 +13,9 @@
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="/">Home</a></li>
-        <li><a href="{% url 'candidate-create' %}">Candidate</a></li>
-        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li class="{% firstof home "inactive" %}"><a href="/">Home</a></li>
+        <li class="{% firstof candidate "inactive" %}"><a href="{% url 'candidate-create' %}">Candidate</a></li>
+        <li class="{% firstof contact "inactive" %}"><a href="{% url 'contact' %}">Contact</a></li>
         <li><a href="{% url 'admin:index' %}" target="_blank">Admin</a></li>
         <li><a href="/api" target="_blank">Api</a></li>
       </ul>

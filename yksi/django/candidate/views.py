@@ -35,6 +35,7 @@ def create(request):
         formset = CandidateFormSet()
 
     context = {
+        "candidate": 'active',
         "title": title,
         "formset": formset,
         "helper": helper,

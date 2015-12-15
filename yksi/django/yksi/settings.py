@@ -52,12 +52,14 @@ INSTALLED_APPS = (
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.twitter',
     'allauth.socialaccount.providers.github',
     # my apps
     'newsletter',
     'candidate',
+    'myprofile',
 )
 
 SITE_ID = 1
@@ -127,26 +129,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-# Celery settings
-cloudamqp = json.loads(os.environ['VCAP_SERVICES'])['cloudamqp']
-for creds in cloudamqp:
-    if "rabbitmq" in creds['name']:
-        BROKER_URL = creds['credentials']['uri']
-
-#: Only add pickle to this list if your broker is secured
-#: from unwanted access (see userguide/security.html)
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-
-# https://www.cloudamqp.com/docs/celery.html
-BROKER_POOL_LIMIT = 1 # Will decrease connection usage
-BROKER_HEARTBEAT = 30 # Will detect stale connections faster
-BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS timeouts etc
-CELERY_RESULT_BACKEND = None
-CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
-CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
-
 # add S3 compatible storge
 STATICFILES_STORAGE = 'yksi.custom_storages.StaticStorage'
 DEFAULT_FILE_STORAGE = 'yksi.custom_storages.MediaStorage'
@@ -183,7 +165,6 @@ MEDIA_URL = "http://%s/" % MEDIA_CUSTOM_DOMAIN
 
 SECURE_BUCKET_NAME = 'secure'
 
-
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static_custom'),
 )
@@ -202,16 +183,45 @@ REST_FRAMEWORK = {
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
 
 # allauth
-ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_SIGNUP_FORM_CLASS = 'myprofile.forms.SignupForm'
+ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
+ACCOUNT_USERNAME_REQUIRED = True
+#SOCIALACCOUNT_AUTO_SIGNUP = False
 SOCIALACCOUNT_PROVIDERS = \
     { 'github':
         {   'SCOPE': ['user:email'],
             'VERIFIED_EMAIL': True,
+        },
+    'facebook':
+       {#'METHOD': 'js_sdk',
+        'SCOPE': ['email', 'public_profile'],
+        'VERIFIED_EMAIL': True,
         }
     }
 LOGIN_REDIRECT_URL = '/'
+
+# Celery settings
+cloudamqp = json.loads(os.environ['VCAP_SERVICES'])['cloudamqp']
+for creds in cloudamqp:
+    if "rabbitmq" in creds['name']:
+        BROKER_URL = creds['credentials']['uri']
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# https://www.cloudamqp.com/docs/celery.html
+BROKER_POOL_LIMIT = 1 # Will decrease connection usage
+BROKER_HEARTBEAT = 30 # Will detect stale connections faster
+BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS timeouts etc
+CELERY_RESULT_BACKEND = None
+CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
+CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
+
 # djcelery_email
 EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'

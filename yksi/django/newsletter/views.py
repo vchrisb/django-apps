@@ -36,6 +36,7 @@ def home(request):
     form = SignUpForm(request.POST or None)
     title = "Welcome on instance %s using app %s" %(CF_INSTANCE_INDEX, application_name)
     context = {
+        "home": 'active',
         "title": title,
         "form": form,
         "index": CF_INSTANCE_INDEX,
@@ -47,6 +48,7 @@ def home(request):
             instance.full_name = "Empty"
         instance.save()
         context = {
+            "home": 'active',
             "title": "Thank You!",
         }
 
@@ -56,6 +58,7 @@ def contact(request):
     title = "Contact:"
     form = ContactForm(request.POST or None)
     context = {
+        "contact": 'active',
         "title": title,
         "form": form,
     }
@@ -84,6 +87,7 @@ def contact(request):
                     html_message = some_html_message,
                     fail_silently = False)
         context = {
+            "contact": 'active',
             "title": "Thank You!",
         }
 

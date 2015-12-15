@@ -2,7 +2,6 @@
 
 {% load i18n %}
 {% load account socialaccount %}
-{% providers_media_js %}
 {% load staticfiles %}
 
 {% block head_css %}
@@ -28,12 +27,12 @@
 <div class="container center">
   <div class="col-sm-4 col-md-4">
   </div>
-  <div class="well well-small col-sm-4 col-md-4">
+  <div class="well well-small col-sm-4 col-md-4 col-lg-4">
     <div class="socialaccount_ballot">
         {% get_providers as socialaccount_providers %}
         {% for provider in socialaccount_providers %}
-          <a title="{{ provider.name }}" class="btn btn-block btn-social btn-md socialaccount_provider btn-{{ provider.id }}" href="{% provider_login_url provider.id process=" login " %}">
-            <i class="fa fa-{{ provider.id }}"></i>Log in with {{ provider.name }}
+          <a title="{{ provider.name }}" class="btn btn-block btn-social btn-md socialaccount_provider btn-{{ provider.id }}" href="{% provider_login_url provider.id process="login" scope=scope auth_params=auth_params %}">
+            <i class="fa fa-{{ provider.id }}"></i>Sign in with {{ provider.name }}
           </a>
         {% endfor %}
     </div>
@@ -78,8 +77,15 @@
       <small><a class="text-muted" href="{% url 'account_signup' %}">Sign up</a></small>
     </div>
   </div>
-  <div class="col-sm-4 col-md-4">
+  <div class="col-sm-4 col-md-4 col-lg-4">
   </div>
 </div>
 
+{% endblock %}
+
+{% block javascript %}
+{% comment %}
+uncomment if using js_sdk with allauth privider
+{% providers_media_js %}
+{% endcomment %}
 {% endblock %}

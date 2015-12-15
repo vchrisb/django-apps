@@ -67,6 +67,9 @@ https://github.com/settings/applications/new
 ##### Create application
 Create New App -> Authorization callback URL: http://app.domain.com/accounts/github/login/callback/
 
+#### Facebook:
+https://developers.facebook.com/apps
+
 #### cloud foundry
 
 ##### login to Cloud Foundry
