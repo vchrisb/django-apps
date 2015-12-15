@@ -125,6 +125,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Load VCAP_SERVICES
+VCAP_SERVICES = json.loads(os.environ['VCAP_SERVICES'])
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -133,8 +135,10 @@ USE_TZ = True
 STATICFILES_STORAGE = 'yksi.custom_storages.StaticStorage'
 DEFAULT_FILE_STORAGE = 'yksi.custom_storages.MediaStorage'
 
+DEFAULT_FROM_EMAIL = 'noreply@yksi.cfapps.io'
+
 # load user provided services
-userservices = json.loads(os.environ['VCAP_SERVICES'])['user-provided']
+userservices = VCAP_SERVICES['user-provided']
 for configs in userservices:
     if "ecs" in configs['name']:
         AWS_S3_HOST = configs['credentials']['HOST']
@@ -188,26 +192,29 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_SIGNUP_FORM_CLASS = 'myprofile.forms.SignupForm'
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
+ACCOUNT_USERNAME_MIN_LENGTH = 6
+ACCOUNT_PASSWORD_MIN_LENGTH = 8
 ACCOUNT_USERNAME_REQUIRED = True
-#SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_AUTO_SIGNUP = False
 SOCIALACCOUNT_PROVIDERS = \
-    { 'github':
+    {
+    'github':
         {   'SCOPE': ['user:email'],
             'VERIFIED_EMAIL': True,
         },
     'facebook':
-       {#'METHOD': 'js_sdk',
-        'SCOPE': ['email', 'public_profile'],
-        'VERIFIED_EMAIL': True,
-        }
+        {#'METHOD': 'js_sdk',
+            'SCOPE': ['email', 'public_profile'],
+            'VERIFIED_EMAIL': True,
+        },
     }
 LOGIN_REDIRECT_URL = '/'
 
 # Celery settings
-cloudamqp = json.loads(os.environ['VCAP_SERVICES'])['cloudamqp']
-for creds in cloudamqp:
-    if "rabbitmq" in creds['name']:
-        BROKER_URL = creds['credentials']['uri']
+if VCAP_SERVICES['cloudamqp']:
+    BROKER_URL = VCAP_SERVICES['cloudamqp'][0]['credentials']['uri']
+    # djcelery_email
+    EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
@@ -222,6 +229,3 @@ BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS tim
 CELERY_RESULT_BACKEND = None
 CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
 CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
-
-# djcelery_email
-EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'

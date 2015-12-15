@@ -14,7 +14,9 @@ from candidate.forms import CandidateFormSetHelper
 from candidate.models import Candidate
 from crispy_forms.layout import Submit
 
-@login_required
+from myprofile.decorators import specific_verified_email_required
+
+@specific_verified_email_required(domains=['emc.com','banck.net'])
 def create(request):
 
     # validate user is authenticated
