@@ -95,6 +95,9 @@ def contact(request):
     return render(request, "contact.html", context)
 
 from .tasks import prime_number
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
 def primes(request):
 
     if request.method == 'GET':
