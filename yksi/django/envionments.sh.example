@@ -27,6 +27,18 @@ export VCAP_SERVICES='{
           },
           "syslog_drain_url": ""
         },
+        {
+          "name": "yksi_twitter",
+          "label": "user-provided",
+          "tags": [],
+          "credentials": {
+            "ACCESS_TOKEN": "123456",
+            "ACCESS_TOKEN_SECRET": "123456",
+            "CONSUMER_KEY": "123456",
+            "CONSUMER_SECRET": "123456"
+          },
+          "syslog_drain_url": ""
+        }
       ],
       "cloudamqp": [
         {

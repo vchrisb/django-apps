@@ -56,6 +56,7 @@ urlpatterns = [
     # Url Entries for django administration
     #url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^captcha/', include('captcha.urls')),
+    url(r'^primes$', newsletter.views.primes, name='primes'),
 ]
 
 # just for testing!

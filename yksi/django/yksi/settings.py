@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'newsletter',
     'candidate',
     'myprofile',
+    'mytwitter',
 )
 
 SITE_ID = 1
@@ -125,9 +126,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Load VCAP_SERVICES
-VCAP_SERVICES = json.loads(os.environ['VCAP_SERVICES'])
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
@@ -137,23 +135,40 @@ DEFAULT_FILE_STORAGE = 'yksi.custom_storages.MediaStorage'
 
 DEFAULT_FROM_EMAIL = 'noreply@yksi.cfapps.io'
 
-# load user provided services
-userservices = VCAP_SERVICES['user-provided']
-for configs in userservices:
-    if "ecs" in configs['name']:
-        AWS_S3_HOST = configs['credentials']['HOST']
-        AWS_ACCESS_KEY_ID = configs['credentials']['ACCESS_KEY_ID']
-        AWS_SECRET_ACCESS_KEY = configs['credentials']['SECRET_ACCESS_KEY']
-        S3_PUBLIC_URL = configs['credentials']['PUBLIC_URL']
-    elif "mail" in configs['name']:
-        EMAIL_HOST = configs['credentials']['HOST']
-        EMAIL_HOST_USER = configs['credentials']['USER']
-        EMAIL_HOST_PASSWORD = configs['credentials']['PASSWORD']
-        EMAIL_PORT = int(configs['credentials']['PORT'])
-        if configs['credentials']['TLS'] == 'True':
-            EMAIL_USE_TLS = True
-        else:
-            EMAIL_USE_TLS = False
+# Load VCAP_SERVICES
+VCAP_SERVICES = json.loads(os.environ['VCAP_SERVICES'])
+for group in VCAP_SERVICES:
+    for service in VCAP_SERVICES[group]:
+        if "ecs" in service['name']:
+            AWS_S3_HOST = service['credentials']['HOST']
+            AWS_ACCESS_KEY_ID = service['credentials']['ACCESS_KEY_ID']
+            AWS_SECRET_ACCESS_KEY = service['credentials']['SECRET_ACCESS_KEY']
+            S3_PUBLIC_URL = service['credentials']['PUBLIC_URL']
+        elif "mail" in service['name']:
+            EMAIL_HOST = service['credentials']['HOST']
+            EMAIL_HOST_USER = service['credentials']['USER']
+            EMAIL_HOST_PASSWORD = service['credentials']['PASSWORD']
+            EMAIL_PORT = int(service['credentials']['PORT'])
+            if service['credentials']['TLS'] == 'True':
+                EMAIL_USE_TLS = True
+            else:
+                EMAIL_USE_TLS = False
+        elif "rabbitmq" in service['name']:
+            BROKER_URL = service['credentials']['uri']
+            EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+            if "cloudamqp" in VCAP_SERVICES[group]:
+                # https://www.cloudamqp.com/docs/celery.html
+                BROKER_POOL_LIMIT = 1 # Will decrease connection usage
+                BROKER_HEARTBEAT = 30 # Will detect stale connections faster
+                BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS timeouts etc
+                CELERY_RESULT_BACKEND = None
+                CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
+                CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
+        elif "twitter" in service['name']:
+            TWITTER_CONSUMER_KEY = service['credentials']['CONSUMER_KEY']
+            TWITTER_CONSUMER_SECRET = service['credentials']['CONSUMER_SECRET']
+            TWITTER_ACCESS_TOKEN = service['credentials']['ACCESS_TOKEN']
+            TWITTER_ACCESS_TOKEN_SECRET = service['credentials']['ACCESS_TOKEN_SECRET']
 
 AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_SECURE_URLS = False
@@ -210,22 +225,10 @@ SOCIALACCOUNT_PROVIDERS = \
     }
 LOGIN_REDIRECT_URL = '/'
 
-# Celery settings
-if VCAP_SERVICES['cloudamqp']:
-    BROKER_URL = VCAP_SERVICES['cloudamqp'][0]['credentials']['uri']
-    # djcelery_email
-    EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
-
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
-# https://www.cloudamqp.com/docs/celery.html
-BROKER_POOL_LIMIT = 1 # Will decrease connection usage
-BROKER_HEARTBEAT = 30 # Will detect stale connections faster
-BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS timeouts etc
-CELERY_RESULT_BACKEND = None
-CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
-CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
+#1h task limit
+CELERYD_TASK_TIME_LIMIT = 3600

@@ -5,8 +5,9 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout
 import os
+from django.core.mail import send_mail
 
-#from .tasks import send_email
+
 
 # import forms
 from .forms import ContactForm, SignUpForm
@@ -92,3 +93,42 @@ def contact(request):
         }
 
     return render(request, "contact.html", context)
+
+from .tasks import prime_number
+def primes(request):
+
+    if request.method == 'GET':
+        searchrange = 3
+        tasks = 1
+        if 'range' in request.GET:
+            try:
+                searchrange = int(request.GET.get('range'))
+            except ValueError:
+                searchrange = 3
+        if 'tasks' in request.GET:
+            try:
+                tasks = int(request.GET.get('tasks'))
+            except ValueError:
+                tasks = 1
+        if tasks < 1:
+            tasks = 1
+        if searchrange < 1:
+            searchrange = 3
+
+        window = int(searchrange / tasks)
+        low = 0
+        high = window
+
+        for n in range(0, tasks):
+            if high > searchrange:
+                high = searchrange
+            prime_number.delay(low,high)
+            low += window
+            high += window
+
+    context = {
+        "title": "Primes:",
+        "range": searchrange,
+        "tasks": tasks,
+    }
+    return render(request, "primes.html", context)
