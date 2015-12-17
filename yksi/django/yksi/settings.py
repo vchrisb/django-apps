@@ -36,19 +36,34 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # third pary apps
     'crispy_forms',
     'storages',
     'django_cleanup',
+    'djcelery_email',
     'rest_framework',
-    'social.apps.django_app.default',
+    'rest_framework.authtoken',
+    'rest_auth',
     'captcha',
+    # allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.twitter',
+    'allauth.socialaccount.providers.github',
     # my apps
     'newsletter',
     'candidate',
+    'myprofile',
+    'mytwitter',
 )
+
+SITE_ID = 1
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,19 +78,10 @@ MIDDLEWARE_CLASSES = (
 
 # Authentication backends Setting
 AUTHENTICATION_BACKENDS = (
-    # For Facebook Authentication
-    #'social.backends.facebook.FacebookOAuth2',
-
-    # For Twitter Authentication
-    'social.backends.twitter.TwitterOAuth',
-
-    # For Google Authentication
-    #'social.backends.google.GoogleOpenId',
-    'social.backends.google.GoogleOAuth2',
-    #'social.backends.google.GoogleOAuth',
-
-    # Default Django Auth Backends
+    # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 ROOT_URLCONF = 'yksi.urls'
@@ -92,17 +98,14 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 
-                # Setting of Template Context Processors for Social Auth
-                'social.apps.django_app.context_processors.backends',
-                'social.apps.django_app.context_processors.login_redirect',
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'yksi.wsgi.application'
-
-
 
 # django-environ does not work with Pivotal Web Services and MySQL
 # DATABASES = {
@@ -123,56 +126,49 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-
-# Celery settings
-cloudamqp = json.loads(os.environ['VCAP_SERVICES'])['cloudamqp']
-for creds in cloudamqp:
-    if "rabbitmq" in creds['name']:
-        BROKER_URL = creds['credentials']['uri']
-
-#: Only add pickle to this list if your broker is secured
-#: from unwanted access (see userguide/security.html)
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-
-# https://www.cloudamqp.com/docs/celery.html
-BROKER_POOL_LIMIT = 1 # Will decrease connection usage
-BROKER_HEARTBEAT = 30 # Will detect stale connections faster
-BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS timeouts etc
-CELERY_RESULT_BACKEND = None
-CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
-CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
 
 # add S3 compatible storge
 STATICFILES_STORAGE = 'yksi.custom_storages.StaticStorage'
 DEFAULT_FILE_STORAGE = 'yksi.custom_storages.MediaStorage'
 
-# load user provided services
-userservices = json.loads(os.environ['VCAP_SERVICES'])['user-provided']
-for configs in userservices:
-    if "ecs" in configs['name']:
-        AWS_S3_HOST = configs['credentials']['HOST']
-        AWS_ACCESS_KEY_ID = configs['credentials']['ACCESS_KEY_ID']
-        AWS_SECRET_ACCESS_KEY = configs['credentials']['SECRET_ACCESS_KEY']
-        S3_PUBLIC_URL = configs['credentials']['PUBLIC_URL']
-    elif "mail" in configs['name']:
-        EMAIL_HOST = configs['credentials']['HOST']
-        EMAIL_HOST_USER = configs['credentials']['USER']
-        EMAIL_HOST_PASSWORD = configs['credentials']['PASSWORD']
-        EMAIL_PORT = int(configs['credentials']['PORT'])
-        if configs['credentials']['TLS'] == 'True':
-            EMAIL_USE_TLS = True
-        else:
-            EMAIL_USE_TLS = False
-    elif "socialauth" in configs['name']:
-        SOCIAL_AUTH_TWITTER_KEY = configs['credentials']['TWITTER_KEY']
-        SOCIAL_AUTH_TWITTER_SECRET = configs['credentials']['TWITTER_SECRET']
-        SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = configs['credentials']['GOOGLE_KEY']
-        SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = configs['credentials']['GOOGLE_SECRET']
+DEFAULT_FROM_EMAIL = 'noreply@yksi.cfapps.io'
+
+# Load VCAP_SERVICES
+VCAP_SERVICES = json.loads(os.environ['VCAP_SERVICES'])
+for group in VCAP_SERVICES:
+    for service in VCAP_SERVICES[group]:
+        if "ecs" in service['name']:
+            AWS_S3_HOST = service['credentials']['HOST']
+            AWS_ACCESS_KEY_ID = service['credentials']['ACCESS_KEY_ID']
+            AWS_SECRET_ACCESS_KEY = service['credentials']['SECRET_ACCESS_KEY']
+            S3_PUBLIC_URL = service['credentials']['PUBLIC_URL']
+        elif "mail" in service['name']:
+            EMAIL_HOST = service['credentials']['HOST']
+            EMAIL_HOST_USER = service['credentials']['USER']
+            EMAIL_HOST_PASSWORD = service['credentials']['PASSWORD']
+            EMAIL_PORT = int(service['credentials']['PORT'])
+            if service['credentials']['TLS'] == 'True':
+                EMAIL_USE_TLS = True
+            else:
+                EMAIL_USE_TLS = False
+        elif "rabbitmq" in service['name']:
+            BROKER_URL = service['credentials']['uri']
+            EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+            if "cloudamqp" in VCAP_SERVICES[group]:
+                # https://www.cloudamqp.com/docs/celery.html
+                BROKER_POOL_LIMIT = 1 # Will decrease connection usage
+                BROKER_HEARTBEAT = 30 # Will detect stale connections faster
+                BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS timeouts etc
+                CELERY_RESULT_BACKEND = None
+                CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
+                CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
+        elif "twitter" in service['name']:
+            TWITTER_CONSUMER_KEY = service['credentials']['CONSUMER_KEY']
+            TWITTER_CONSUMER_SECRET = service['credentials']['CONSUMER_SECRET']
+            TWITTER_ACCESS_TOKEN = service['credentials']['ACCESS_TOKEN']
+            TWITTER_ACCESS_TOKEN_SECRET = service['credentials']['ACCESS_TOKEN_SECRET']
 
 AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_SECURE_URLS = False
@@ -188,17 +184,51 @@ MEDIA_URL = "http://%s/" % MEDIA_CUSTOM_DOMAIN
 
 SECURE_BUCKET_NAME = 'secure'
 
-
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static_custom'),
 )
 
+# crispy
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = not DEBUG
 
+# REST
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'PAGE_SIZE': 10
 }
 
+#captcha
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+
+# allauth
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_SIGNUP_FORM_CLASS = 'myprofile.forms.SignupForm'
+ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
+ACCOUNT_USERNAME_MIN_LENGTH = 6
+ACCOUNT_PASSWORD_MIN_LENGTH = 8
+ACCOUNT_USERNAME_REQUIRED = True
+SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_PROVIDERS = \
+    {
+    'github':
+        {   'SCOPE': ['user:email'],
+            'VERIFIED_EMAIL': True,
+        },
+    'facebook':
+        {#'METHOD': 'js_sdk',
+            'SCOPE': ['email', 'public_profile'],
+            'VERIFIED_EMAIL': True,
+        },
+    }
+LOGIN_REDIRECT_URL = '/'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+#1h task limit
+CELERYD_TASK_TIME_LIMIT = 3600

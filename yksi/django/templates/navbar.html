@@ -13,17 +13,17 @@
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="/">Home</a></li>
-        <li><a href="{% url 'candidate-create' %}">Candidate</a></li>
-        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li class="{% firstof home "inactive" %}"><a href="/">Home</a></li>
+        <li class="{% firstof candidate "inactive" %}"><a href="{% url 'candidate-create' %}">Candidate</a></li>
+        <li class="{% firstof contact "inactive" %}"><a href="{% url 'contact' %}">Contact</a></li>
         <li><a href="{% url 'admin:index' %}" target="_blank">Admin</a></li>
         <li><a href="/api" target="_blank">Api</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if request.user.is_authenticated %}
-          <li><a href="{% url 'logout' %}">Logout</a></li>
+          <li><a href="{% url 'account_logout' %}">Logout</a></li>
         {% else %}
-          <li><a href="{% url 'login' %}">Login</a></li>
+          <li><a href="{% url 'account_login' %}">Login</a></li>
         {% endif %}
       </ul>
     </div><!--/.nav-collapse -->

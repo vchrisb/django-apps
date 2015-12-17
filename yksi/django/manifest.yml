@@ -10,7 +10,7 @@ applications:
   - yksi_ecs
   - yksi_mail
   - yksi_rabbitmq
-  - yksi_socialauth
+  - yksi_twitter
   env:
     SECRET_KEY: 'aadc-t8j*i5a7^y9@d^$at#g0!j_h=h++5stj=nb7z8u#l_y#&'
     DEBUG: 'True'

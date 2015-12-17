@@ -5,8 +5,9 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout
 import os
+from django.core.mail import send_mail
 
-from .tasks import send_email
+
 
 # import forms
 from .forms import ContactForm, SignUpForm
@@ -36,6 +37,7 @@ def home(request):
     form = SignUpForm(request.POST or None)
     title = "Welcome on instance %s using app %s" %(CF_INSTANCE_INDEX, application_name)
     context = {
+        "home": 'active',
         "title": title,
         "form": form,
         "index": CF_INSTANCE_INDEX,
@@ -47,6 +49,7 @@ def home(request):
             instance.full_name = "Empty"
         instance.save()
         context = {
+            "home": 'active',
             "title": "Thank You!",
         }
 
@@ -56,6 +59,7 @@ def contact(request):
     title = "Contact:"
     form = ContactForm(request.POST or None)
     context = {
+        "contact": 'active',
         "title": title,
         "form": form,
     }
@@ -76,20 +80,58 @@ def contact(request):
         %s
         """ %(form_full_name, form_message)
         # send asynchronous
-        send_email.delay(subject, contact_message, from_email, to_email, some_html_message)
-
+        #send_email.delay(subject, contact_message, from_email, to_email, some_html_message)
+        send_mail(subject,
+                    contact_message,
+                    from_email,
+                    to_email,
+                    html_message = some_html_message,
+                    fail_silently = False)
         context = {
+            "contact": 'active',
             "title": "Thank You!",
         }
 
     return render(request, "contact.html", context)
 
-def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse('home'))
+from .tasks import prime_number
+from django.contrib.admin.views.decorators import staff_member_required
 
-def login_view(request):
+@staff_member_required
+def primes(request):
+
+    if request.method == 'GET':
+        searchrange = 3
+        tasks = 1
+        if 'range' in request.GET:
+            try:
+                searchrange = int(request.GET.get('range'))
+            except ValueError:
+                searchrange = 3
+        if 'tasks' in request.GET:
+            try:
+                tasks = int(request.GET.get('tasks'))
+            except ValueError:
+                tasks = 1
+        if tasks < 1:
+            tasks = 1
+        if searchrange < 1:
+            searchrange = 3
+
+        window = int(searchrange / tasks)
+        low = 0
+        high = window
+
+        for n in range(0, tasks):
+            if high > searchrange:
+                high = searchrange
+            prime_number.delay(low,high)
+            low += window
+            high += window
+
     context = {
-        "title": "Login Page",
+        "title": "Primes:",
+        "range": searchrange,
+        "tasks": tasks,
     }
-    return render(request, "login.html", context)
+    return render(request, "primes.html", context)

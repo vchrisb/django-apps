@@ -28,14 +28,14 @@ export VCAP_SERVICES='{
           "syslog_drain_url": ""
         },
         {
-          "name": "socialauth",
+          "name": "yksi_twitter",
           "label": "user-provided",
           "tags": [],
           "credentials": {
-            "GOOGLE_KEY": "1234567890.apps.googleusercontent.com",
-            "GOOGLE_SECRET": "1234567890-Wz",
-            "TWITTER_KEY": "1234567890",
-            "TWITTER_SECRET": "1234567890"
+            "ACCESS_TOKEN": "123456",
+            "ACCESS_TOKEN_SECRET": "123456",
+            "CONSUMER_KEY": "123456",
+            "CONSUMER_SECRET": "123456"
           },
           "syslog_drain_url": ""
         }
