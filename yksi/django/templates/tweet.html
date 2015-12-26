@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+{% block head_title %}Tweet{% endblock %}
+
+{% block head_css %}
+<link href="{% static 'css/timeline.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<script src="//twemoji.maxcdn.com/twemoji.min.js"></script>
+{% endblock %}
+
+{% block jumbo %}
+<!-- Main component for a primary marketing message or call to action
+<div class="jumbotron">
+  <h1>Please send us a tweet!</h1>
+</div>-->
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-3 col-md-3">
+    <h1>{{ title }}</h1>
+      {% if form %}
+      {% crispy form %}
+      {% endif %}
+  </div>
+  <div class="col-sm-9 col-md-9">
+    <ul class="timeline">
+  {% for tweet in tweets %}
+      {% if forloop.counter|divisibleby:2 %}
+      <li>
+      {% else %}
+      <li class="timeline-inverted">
+      {% endif %}
+        <div class="timeline-badge {% if tweet.from_twitter %}info{% else %}success{% endif %}"><i class="fa {% if tweet.from_twitter %}fa-twitter{% else %}fa-user{% endif %}"></i></div>
+        <div class="timeline-panel">
+          <div class="timeline-heading">
+            <strong class="timeline-title" display="inline">{% if tweet.user %}{{ tweet.user.get_full_name }}{% else %}{{ tweet.username }}{% endif %}</strong><span><small> @{% if tweet.user %}{{ tweet.user}}{% else %}{{ tweet.screenname }}{% endif %}</small></span>
+            <p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> {{ tweet.created_at|timesince }} ago {% if tweet.from_twitter %}via Twitter{% endif %}</small></p>
+          </div>
+          <div class="timeline-body">
+            <p>{{ tweet.text }}</p>
+            {% if tweet.picture %}
+            <a href="{{ tweet.picture.url }}"><img src="{{ tweet.picture|thumbnail_url:'badge' }}" class="img-responsive"></img></a>
+            {% endif %}
+          </div>
+        </div>
+      </li>
+  {% endfor %}
+    </ul>
+  </div>
+  </div>
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+window.onload = function() {
+
+  // Set the size of the rendered Emojis
+  // This can be set to 16x16, 36x36, or 72x72
+  twemoji.size = '16x16';
+
+  // Parse the document body and
+  // insert <img> tags in place of Unicode Emojis if OS is Windows
+  if (window.navigator.userAgent.indexOf("Windows NT 6.1") != -1) twemoji.parse(document.body);
+
+}
+</script>
+{% endblock %}

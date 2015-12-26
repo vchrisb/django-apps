@@ -61,6 +61,7 @@ db.sqlite.db
 
 #Vagrant
 .vagrant
+.bundle
 
 #environment files
 envionments.sh

@@ -8,7 +8,7 @@ import socket
 import time
 import tweepy
 
-from mytwitter.tasks import print_url
+from mytwitter.tasks import print_url,save_tweet
 
 logger = logging.getLogger('Stream_Logger')
 formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
@@ -34,10 +34,8 @@ class Command(BaseCommand):
         error_handler = ErrorHandler()
         while True:
             try:
-                #self.stdout.write('Started2')
                 logger.info('Started')
                 logger.debug(options['keywords'])
-                #self.stdout.write(str(options['keywords']))
                 stream = tweepy.Stream(auth, Listener(), timeout=None)
                 stream.filter(track=options['keywords'])
             except Exception as e:
@@ -51,9 +49,9 @@ class Command(BaseCommand):
                 elif isinstance(e, socket.error):
                     error_handler.network_error()
                 else:
-                 raise e
+                    raise e
 
-        logger.critical('Finished.')
+        logger.info('Finished.')
         logging.shutdown()
 
 class Listener(tweepy.StreamListener):
@@ -65,7 +63,11 @@ class Listener(tweepy.StreamListener):
         if 'limit' in tweet:
             logger.warning("Missed tweets: " + str(tweet['limit']['track']))
             return
-        print_url.delay(tweet)
+        if 'retweeted_status' in tweet:
+            logger.debug('skipping - tweet is a retweet')
+            return
+        save_tweet.delay(tweet)
+        logger.debug('new tweet')
 
     def on_error(self, status_code):
         """Raise errors that occur."""

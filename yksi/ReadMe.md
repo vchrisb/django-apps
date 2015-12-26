@@ -85,6 +85,10 @@ cf cups appname_mail -p '{"HOST":"smtp.domain.local","USER":"django@domain.local
 ##### initial push for database creation or later database migrations
 ```cf push --no-route -c "bash ./init_db.sh" -i 1```
 
+##### migrate database
+```cf push yksi-migrate --no-route -c "bash ./migrate.sh" -i 1  
+cf delete yksi-migrate```
+
 ##### push app
 ```cf push```
 

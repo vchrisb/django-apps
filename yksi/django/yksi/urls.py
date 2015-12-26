@@ -9,6 +9,7 @@ from rest_framework import routers, serializers, viewsets
 
 import newsletter.views
 import candidate.views
+import mytwitter.views
 
 # Serializers define the API representation.
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -57,6 +58,7 @@ urlpatterns = [
     #url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^primes$', newsletter.views.primes, name='primes'),
+    url(r'^tweet/$', mytwitter.views.tweet, name='tweet'),
 ]
 
 # just for testing!
