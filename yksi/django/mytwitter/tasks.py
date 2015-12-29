@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 
 from celery import shared_task
-from easy_thumbnails.files import generate_all_aliases
+
 from .models import Tweet
 import uuid
 from django.core.files.base import ContentFile
-from easy_thumbnails.files import generate_all_aliases
 
 @shared_task
 def print_url(tweet):
@@ -33,7 +32,6 @@ def save_tweet(tweetobj):
         image = process_image(image)
         image_name = str(uuid.uuid4()) + ".jpg"
         newtweet.picture.save(image_name,image)
-        generate_all_aliases(newtweet.picture, include_global=True)
 
     newtweet.save()
 

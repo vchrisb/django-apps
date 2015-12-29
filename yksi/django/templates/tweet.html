@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load crispy_forms_tags %}
-{% load thumbnail %}
 {% block head_title %}Tweet{% endblock %}
+{% load thumbnail %}
 
 {% block head_css %}
 <link href="{% static 'css/timeline.css' %}" rel="stylesheet">
@@ -42,7 +42,9 @@
           <div class="timeline-body">
             <p>{{ tweet.text }}</p>
             {% if tweet.picture %}
-            <a href="{{ tweet.picture.url }}"><img src="{{ tweet.picture|thumbnail_url:'badge' }}" class="img-responsive"></img></a>
+            {% thumbnail tweet.picture "300" as im %}
+            <a href="{{ tweet.picture.url }}"><img src="{{ im.url }}" class="img-responsive"></img></a>
+            {% endthumbnail %}
             {% endif %}
           </div>
         </div>

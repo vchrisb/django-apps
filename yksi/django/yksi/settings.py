@@ -48,7 +48,9 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
     'rest_auth',
     'captcha',
-    'easy_thumbnails',
+    'debug_toolbar',
+    #'easy_thumbnails',
+    'sorl.thumbnail',
     # allauth
     'allauth',
     'allauth.account',
@@ -234,13 +236,17 @@ CELERY_RESULT_SERIALIZER = 'json'
 #1h task limit
 CELERYD_TASK_TIME_LIMIT = 3600
 
-# easy-thumbnails
-THUMBNAIL_CACHE_DIMENSIONS = True
-THUMBNAIL_BASEDIR = 'thumbs'
-THUMBNAIL_NAMER = 'easy_thumbnails.namers.source_hashed'
-THUMBNAIL_ALIASES = { '': { 'badge': {
-                                        'size': (300, 150),
-                                        'crop': False,
-                                    },
-                        }
-                    }
+
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+#THUMBNAIL_KVSTORE = "sorl.thumbnail.kvstores.dbm_kvstore.KVStore"
+#THUMBNAIL_DEBUG = True
+THUMBNAIL_STORAGE = "yksi.custom_storages.SecureStorage"
+INTERNAL_IPS = "10.0.2.2"

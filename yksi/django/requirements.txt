@@ -12,9 +12,10 @@ django-simple-captcha
 djangorestframework
 django-storages-redux
 dj-database-url
-easy-thumbnails
 gunicorn
 markdown
 mysqlclient
 psycopg2
+python-memcached
+sorl-thumbnail
 tweepy
