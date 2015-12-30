@@ -5,8 +5,13 @@ sudo dnf -y install python3-pip python3-devel redhat-rpm-config postgresql postg
 
 # install and configure rabbitmq
 sudo dnf -y install rabbitmq-server
-sudo chkconfig rabbitmq-server on
+sudo systemctl enable rabbitmq-server
 sudo systemctl start rabbitmq-server
+
+# install and configure memcached
+sudo dnf -y install memcached
+sudo systemctl enable memcached.service
+sudo systemctl start memcached.service
 
 # install cloud foundry cli
 wget -q https://cli.run.pivotal.io/stable?release=redhat64 -O /tmp/cf-cli-installer.rpm

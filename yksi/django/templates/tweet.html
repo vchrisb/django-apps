@@ -20,7 +20,6 @@
 {% block content %}
 <div class="row">
   <div class="col-sm-3 col-md-3">
-    <h1>{{ title }}</h1>
       {% if form %}
       {% crispy form %}
       {% endif %}
@@ -41,14 +40,30 @@
           </div>
           <div class="timeline-body">
             <p>{{ tweet.text }}</p>
-            {% if tweet.picture %}
-            <a href="{{ tweet.picture.url }}"><img src="{{ tweet.picture|thumbnail_url:'badge' }}" class="img-responsive"></img></a>
-            {% endif %}
+            {% for tweetpic in tweet.pics.all %}
+              <br>
+              <a href="{% url 'tweetpic' tweetpic.id %}"><img src="{{ tweetpic.picture|thumbnail_url:'badge' }}" class="img-responsive"></img></a>
+            {% endfor %}
           </div>
         </div>
       </li>
   {% endfor %}
     </ul>
+    <div class="pagination">
+      <span class="step-links">
+          {% if tweets.has_previous %}
+              <a href="?page={{ tweets.previous_page_number }}">previous</a>
+          {% endif %}
+
+          <span class="current">
+              Page {{ tweets.number }} of {{ tweets.paginator.num_pages }}
+          </span>
+
+          {% if tweets.has_next %}
+              <a href="?page={{ tweets.next_page_number }}">next</a>
+          {% endif %}
+      </span>
+    </div>
   </div>
   </div>
 {% endblock %}

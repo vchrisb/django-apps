@@ -58,7 +58,9 @@ urlpatterns = [
     #url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^primes$', newsletter.views.primes, name='primes'),
-    url(r'^tweet/$', mytwitter.views.tweet, name='tweet'),
+    url(r'^tweets$', mytwitter.views.tweet, name='tweet'),
+    url(r'^tweets/picture/(?P<uuid>[0-9a-z-]+)$', mytwitter.views.TweetPicView, name='tweetpic'),
+
 ]
 
 # just for testing!

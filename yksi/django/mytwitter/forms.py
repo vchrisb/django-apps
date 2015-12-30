@@ -1,13 +1,18 @@
 from django import forms
-from .models import Tweet
+from .models import Tweet, TweetPic
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Field
+
+from .fields import MultiImageField
 
 class TweetForm(forms.ModelForm):
     class Meta:
         model = Tweet
         fields = ['text', 'picture']
+
+    picture = MultiImageField(min_num=0, max_num=4, max_file_size=1024*1024*5, required=False)
+    #forms.FileField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(TweetForm, self).__init__(*args, **kwargs)
@@ -19,8 +24,14 @@ class TweetForm(forms.ModelForm):
             Field('text', rows="6")
             )
 
+    # def save(self, commit=True):
+    #     tweet = super(TweetForm, self).save(commit)
+    #     picture = self.cleaned_data['picture']
+    #     TweetPic.objects.create(picture=picture, tweet=tweet)
+    #
+    #     return tweets
 
 class TweetAdminForm(forms.ModelForm):
     class Meta:
         model = Tweet
-        fields = ['user', 'username', 'screenname', 'text', 'picture']
+        fields = ['user', 'username', 'screenname', 'text']

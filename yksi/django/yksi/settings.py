@@ -240,7 +240,7 @@ THUMBNAIL_BASEDIR = 'thumbs'
 THUMBNAIL_NAMER = 'easy_thumbnails.namers.source_hashed'
 THUMBNAIL_ALIASES = { '': { 'badge': {
                                         'size': (300, 150),
-                                        'crop': False,
+                                        'crop': True,
                                     },
                         }
                     }
